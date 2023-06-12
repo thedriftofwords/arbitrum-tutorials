@@ -151,8 +151,8 @@ const gasEstimator = async () => {
   console.log("VRF transaction summary");
   console.log("-------------------");
   console.log(`P (L2 Gas Price) = ${utils.formatUnits(P, "gwei")} gwei`);
-  console.log(`VRFL2SubscriptionGasSubtotal (coordinatorGasOverhead + wrapperGasOverhead + callbackGasLimit) = ${VRFL2SubscriptionGasSubtotal.toNumber()} units`);
-  console.log(`VRFL2DirectFundingGasSubtotal (avgVerificationGas + callbackGasLimit) = ${VRFL2DirectFundingGasSubtotal.toNumber()} units`);
+  console.log(`VRFL2SubscriptionGasSubtotal (avgVerificationGas + callbackGasLimit)  = ${VRFL2SubscriptionGasSubtotal.toNumber()} units`);
+  console.log(`VRFL2DirectFundingGasSubtotal (coordinatorGasOverhead + wrapperGasOverhead + callbackGasLimit)  = ${VRFL2DirectFundingGasSubtotal.toNumber()} units`);
   console.log(`VRFL1Buffer = ${VRFL1Buffer}`);
   console.log(`L1P (raw value) = ${L1P}`);
   console.log(`L1P (L1 estimated calldata price per byte) = ${utils.formatUnits(L1P, "gwei")} gwei`);
