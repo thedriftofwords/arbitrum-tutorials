@@ -106,47 +106,61 @@ const gasEstimator = async () => {
     const TXFEES = P.mul(G);
 
     // VRF variables and calculations
-    // ---------------------------------
-    const maxVerificationGas = 200000;
-    const avgVerificationGas = 115000;
-    // L1 Calldata size: Arbitrum's static 140 bytes plus VRF V2's 580 fulfillment tx bytes
-    const VRFCallDataSizeBytes = 140 + 580;
-    
-    // VRF user settings
-    const callbackGasLimit = 175000;
+  // ---------------------------------
+  const maxVerificationGas = 200000;
+  const avgVerificationGas = 115000;
 
-    // Estimate VRF L1 buffer
-    const VRFL1CostEstimate = L1P.mul(VRFCallDataSizeBytes);
-    const VRFL1Buffer = VRFL1CostEstimate.div(P);
-    
-    // VRF Gas estimate
-    // L2 gas price (P) * (maxVerificationGas + callbackGasLimit + VRFL1Buffer)
-    const VRFL2GasSubtotal = BigNumber.from(maxVerificationGas + callbackGasLimit);
-    const VRFGasTotal = VRFL2GasSubtotal.add(VRFL1Buffer);
-    const totalVRFGasEstimate = P.mul(VRFGasTotal);
+  // L1 Calldata size includes:
+  // Arbitrum's static 140 bytes for transaction metadata
+  // VRF V2's 580 fulfillment tx bytes
+  const VRFCallDataSizeBytes = 140 + 580;
 
-    const gweiToEth = 1000000000;
-    const VRFGasInEth = totalVRFGasEstimate.div(gweiToEth);
+  // For direct funding only. Coordinator gas is verification gas
+  const wrapperGasOverhead = 40000;
+  const coordinatorGasOverhead = 90000;
 
-    console.log("Arbitrum transaction summary");
-    console.log("-------------------");
-    console.log(`P (L2 Gas Price) = ${utils.formatUnits(P, "gwei")} gwei`);
-    console.log(`L2G (L2 Gas used) = ${L2G.toNumber()} units`);
-    console.log(`L1P (L1 estimated calldata price per byte) = ${utils.formatUnits(L1P, "gwei")} gwei`);
-    console.log(`L1S (L1 Calldata size in bytes) = ${L1S} bytes`);
-    console.log("-------------------");
-    console.log(`Transaction estimated fees to pay = ${utils.formatEther(TXFEES)} ETH`);
+  // VRF user settings
+  const callbackGasLimit = 175000;
 
-    console.log("VRF transaction summary");
-    console.log("-------------------");
-    console.log(`P (L2 Gas Price) = ${utils.formatUnits(P, "gwei")} gwei`);
-    console.log(`VRFL2GasSubtotal (maxVerificationGas + callbackGasLimit) = ${VRFL2GasSubtotal.toNumber()} units`);
-    console.log(`L1P (L1 estimated calldata price per byte) = ${utils.formatUnits(L1P, "gwei")} gwei`);
-    console.log(`VRFCallDataSizeBytes (L1 Calldata size in bytes) = ${VRFCallDataSizeBytes} bytes`);
-    console.log("-------------------");
-    console.log(`VRF transaction estimated fees to pay = ${utils.formatEther(totalVRFGasEstimate)} ETH`);
+  // Estimate VRF L1 buffer
+  const VRFL1CostEstimate = L1P.mul(VRFCallDataSizeBytes);
+  const VRFL1Buffer = VRFL1CostEstimate.div(P);
+
+  // VRF Subscription gas estimate
+  // L2 gas price (P) * (avgVerificationGas + callbackGasLimit + VRFL1Buffer)
+  const VRFL2SubscriptionGasSubtotal = BigNumber.from(avgVerificationGas + callbackGasLimit);
+  const VRFSubscriptionGasTotal = VRFL2SubscriptionGasSubtotal.add(VRFL1Buffer);
+  const VRFSubscriptionGasEstimate = P.mul(VRFSubscriptionGasTotal);
+
+  // VRF Direct funding gas estimate
+  // L2 gas price (P) * (coordinatorGasOverhead + callbackGasLimit + wrapperGasOverhead + VRFL1Buffer)
+  const VRFL2DirectFundingGasSubtotal = BigNumber.from(coordinatorGasOverhead + wrapperGasOverhead + callbackGasLimit);
+  const VRFDirectFundingGasTotal = VRFL2DirectFundingGasSubtotal.add(VRFL1Buffer);
+  const VRFDirectFundingGasEstimate = P.mul(VRFDirectFundingGasTotal);
+
+
+  console.log("Arbitrum transaction summary");
+  console.log("-------------------");
+  console.log(`P (L2 Gas Price) = ${utils.formatUnits(P, "gwei")} gwei`);
+  console.log(`L2G (L2 Gas used) = ${L2G.toNumber()} units`);
+  console.log(`L1P (L1 estimated calldata price per byte) = ${utils.formatUnits(L1P, "gwei")} gwei`);
+  console.log(`L1S (L1 Calldata size in bytes) = ${L1S} bytes`);
+  console.log("-------------------");
+  console.log(`Transaction estimated fees to pay = ${utils.formatEther(TXFEES)} ETH`);
+
+  console.log("VRF transaction summary");
+  console.log("-------------------");
+  console.log(`P (L2 Gas Price) = ${utils.formatUnits(P, "gwei")} gwei`);
+  console.log(`VRFL2SubscriptionGasSubtotal (coordinatorGasOverhead + wrapperGasOverhead + callbackGasLimit) = ${VRFL2SubscriptionGasSubtotal.toNumber()} units`);
+  console.log(`VRFL2DirectFundingGasSubtotal (avgVerificationGas + callbackGasLimit) = ${VRFL2DirectFundingGasSubtotal.toNumber()} units`);
+  console.log(`VRFL1Buffer = ${VRFL1Buffer}`);
+  console.log(`L1P (raw value) = ${L1P}`);
+  console.log(`L1P (L1 estimated calldata price per byte) = ${utils.formatUnits(L1P, "gwei")} gwei`);
+  console.log(`VRFCallDataSizeBytes (L1 Calldata size in bytes) = ${VRFCallDataSizeBytes} bytes`);
+  console.log("-------------------");
+  console.log(`VRF Subscription transaction estimated fees to pay = ${utils.formatEther(VRFSubscriptionGasEstimate)} ETH`);
+  console.log(`VRF Direct funding transaction estimated fees to pay = ${utils.formatEther(VRFDirectFundingGasEstimate)} ETH`);
 }
-
 gasEstimator()
     .then(() => process.exit(0))
     .catch(error => {
