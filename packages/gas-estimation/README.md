@@ -1,4 +1,8 @@
-# Gas estimation tutorial
+# VRF / Arbitrum gas estimation tutorial
+
+This extends the [**original Arbitrum gas estimation tutorial**](https://github.com/OffchainLabs/arbitrum-tutorials/tree/master/packages/gas-estimation) to add [gas estimate calculations for Chainlink VRF](https://docs.chain.link/vrf/v2/estimating-costs#arbitrum).
+
+---
 
 `gas-estimation` is a simple demo of how a developer can estimate transaction fees on Arbitrum.
 
@@ -23,7 +27,3 @@ cp .env-sample .env
 ```
 
 (you'll still need to edit some variables, i.e., `L2RPC`)
-
-<p align="left">
-  <img width="350" height="150" src= "../../assets/logo.svg" />
-</p>

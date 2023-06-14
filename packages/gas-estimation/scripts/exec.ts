@@ -118,7 +118,7 @@ const gasEstimator = async () => {
 
   // The L1 Calldata size includes:
   // Arbitrum's static 140 bytes for transaction metadata
-  // VRF V2's static 580 bytes, the size of a fulfillment's calldata abi-encoded in bytes 
+  // VRF V2's static 580 bytes, the size of a fulfillment's calldata ABI-encoded in bytes 
   // (from s_fulfillmentTxSizeBytes in VRFV2Wrapper.sol)
   const VRFCallDataSizeBytes = 140 + 580;
 
